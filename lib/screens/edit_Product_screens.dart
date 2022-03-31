@@ -42,11 +42,12 @@ class _EditProductScreenstState extends State<EditProductScreens> {
   @override
   void didChangeDependencies() {
     if (_isInit) {
-      final productId = ModalRoute.of(context)?.settings.arguments as String;
+      final productId = ModalRoute.of(context)?.settings.arguments;
+      String id = productId.toString();
 
-      if(productId != null){
+      if (id != 'null') {
         _editedProduct =
-            Provider.of<Products>(context, listen: false).findById(productId);
+            Provider.of<Products>(context, listen: false).findById(id);
         _initValues = {
           'title': _editedProduct.title,
           'description': _editedProduct.description,
@@ -55,7 +56,6 @@ class _EditProductScreenstState extends State<EditProductScreens> {
         };
         _imageUrlController.text = _editedProduct.imageUrl;
       }
-
     }
     _isInit = false;
     // TODO: implement didChangeDependencies
@@ -88,13 +88,14 @@ class _EditProductScreenstState extends State<EditProductScreens> {
       return;
     }
     _form.currentState?.save();
-    Provider.of<Products>(context, listen: false).addProduct(_editedProduct);
-    Navigator.of(context).pop();
-
-    /* print(_editedProduct.title);
-    print(_editedProduct.price);
-    print(_editedProduct.description);
-    print(_editedProduct.imageUrl);*/
+    print(_editedProduct.id);
+    if (_editedProduct.id != 'null') {
+      Provider.of<Products>(context, listen: false).updateProduct(_editedProduct.id, _editedProduct);
+      Navigator.of(context).pop();
+    } else {
+      Provider.of<Products>(context, listen: false).addProduct(_editedProduct);
+      Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -144,6 +145,7 @@ class _EditProductScreenstState extends State<EditProductScreens> {
                     description: _editedProduct.description,
                     price: _editedProduct.price,
                     imageUrl: _editedProduct.imageUrl,
+                    isFavorite: _editedProduct.isFavorite
                   );
                 },
               ),
@@ -177,6 +179,7 @@ class _EditProductScreenstState extends State<EditProductScreens> {
                     description: _editedProduct.description,
                     price: double.parse(value!),
                     imageUrl: _editedProduct.imageUrl,
+                      isFavorite: _editedProduct.isFavorite
                   );
                 },
               ),
@@ -206,6 +209,7 @@ class _EditProductScreenstState extends State<EditProductScreens> {
                     description: value!,
                     price: _editedProduct.price,
                     imageUrl: _editedProduct.imageUrl,
+                      isFavorite: _editedProduct.isFavorite
                   );
                 },
               ),
@@ -250,6 +254,7 @@ class _EditProductScreenstState extends State<EditProductScreens> {
                           description: _editedProduct.description,
                           price: _editedProduct.price,
                           imageUrl: value!,
+                            isFavorite: _editedProduct.isFavorite
                         );
                       },
                     ),

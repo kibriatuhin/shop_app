@@ -36,7 +36,7 @@ class Products with ChangeNotifier {
           'https://images.unsplash.com/photo-1598032895397-b9472444bf93?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=580&q=80',
     ),
     Product(
-      id: 'p4',
+      id: 'p5',
       title: 'Styling Shirt',
       description: 'A Sandwich - A good food.',
       price: 49.99,
@@ -83,6 +83,22 @@ class Products with ChangeNotifier {
     );
     _items.add(newProduct);
     //..
+    notifyListeners();
+  }
+  
+  void updateProduct(String id , Product newProduct){
+    final productIndex =  _items.indexWhere((element) => element.id == id);
+    if(productIndex >= 0){
+      _items[productIndex] = newProduct;
+    }else{
+      print('...');
+    }
+
+    notifyListeners();
+  }
+
+  void deleteProduct(String id){
+    _items.removeWhere((element) => element.id == id);
     notifyListeners();
   }
 }
