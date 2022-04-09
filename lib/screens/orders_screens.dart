@@ -7,11 +7,10 @@ import 'package:shop_app/widgets/order_item_widgets.dart';
 
 class OrdersScreens extends StatelessWidget {
   static const routeName = "/order";
-  const OrdersScreens({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final orderData = Provider.of<or.Orders>(context);
+    //final orderData = Provider.of<or.Orders>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -20,9 +19,30 @@ class OrdersScreens extends StatelessWidget {
         ),
       ),
       drawer: AppDrawer(),
-      body: ListView.builder(
-        itemBuilder: (context, index) => OrderItemWidget(order: orderData.orders[index],),
-        itemCount: orderData.orders.length,
+      body: FutureBuilder(
+        future: Provider.of<Orders>(context, listen: false).fatchAndSetOrders(),
+        builder: (contex, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else {
+            if (snapshot.error != null) {
+              return Center(
+                child: Text("Have an error"),
+              );
+            } else {
+              return Consumer<Orders>(
+                builder: (context, orderData, child) => ListView.builder(
+                  itemBuilder: (context, index) => OrderItemWidget(
+                    order: orderData.orders[index],
+                  ),
+                  itemCount: orderData.orders.length,
+                ),
+              );
+            }
+          }
+        },
       ),
     );
   }

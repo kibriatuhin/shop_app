@@ -94,19 +94,11 @@ class _EditProductScreenstState extends State<EditProductScreens> {
       _isLoading = true;
     });
     if (_editedProduct.id != '') {
-      Provider.of<Products>(context, listen: false)
-          .updateProduct(_editedProduct.id, _editedProduct);
-      setState(() {
-        _isLoading = false;
-      });
-      Navigator.of(context).pop();
-    } else {
-
       try {
         await Provider.of<Products>(context, listen: false)
-            .addProduct(_editedProduct);
+            .updateProduct(_editedProduct.id, _editedProduct);
       } catch (e) {
-       await showDialog(
+        await showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
             title: Text("An error occureed"),
@@ -121,14 +113,39 @@ class _EditProductScreenstState extends State<EditProductScreens> {
             ],
           ),
         );
-      } finally {
+      }
+    } else {
+      try {
+        await Provider.of<Products>(context, listen: false)
+            .addProduct(_editedProduct);
+      } catch (e) {
+        await showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text("An error occureed"),
+            content: Text("Something went wrong"),
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                },
+                child: Text("Okey"),
+              )
+            ],
+          ),
+        );
+      } /*finally {
         setState(() {
           _isLoading = false;
         });
 
         Navigator.of(context).pop();
-      }
+      }*/
     }
+    setState(() {
+      _isLoading = false;
+    });
+    Navigator.of(context).pop();
   }
 
   @override

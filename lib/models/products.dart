@@ -1,12 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:shop_app/models/http_exception.dart';
 import 'package:shop_app/models/product.dart';
 import 'package:http/http.dart' as http;
 
 class Products with ChangeNotifier {
   List<Product> _items = [
-  /*  Product(
+    /*  Product(
       id: 'p1',
       title: 'Red T-Shirt',
       description: 'Batter quality of world',
@@ -82,8 +83,12 @@ class Products with ChangeNotifier {
 
     try {
       final response = await http.get(Uri.parse(url));
-     // print(json.decode(response.body));
+
+      // print(json.decode(response.body));
       final extractData = json.decode(response.body) as Map<String, dynamic>;
+      if(extractData == null){
+        return;
+      }
       final List<Product> loadedProduct = [];
       extractData.forEach((prodId, prodData) {
         loadedProduct.add(
@@ -136,9 +141,22 @@ class Products with ChangeNotifier {
     }
   }
 
-  void updateProduct(String id, Product newProduct) {
+  Future<void> updateProduct(String id, Product newProduct) async {
     final productIndex = _items.indexWhere((element) => element.id == id);
     if (productIndex >= 0) {
+      final url =
+          'https://flutter-update-55935-default-rtdb.firebaseio.com/products/$id.json';
+      try {
+        await http.patch(Uri.parse(url),
+            body: json.encode({
+              "title": newProduct.title,
+              "description": newProduct.description,
+              "price": newProduct.price,
+              "imageUrl": newProduct.imageUrl,
+            }));
+      } catch (e) {
+        print(e);
+      }
       _items[productIndex] = newProduct;
     } else {
       print('...');
@@ -147,8 +165,23 @@ class Products with ChangeNotifier {
     notifyListeners();
   }
 
-  void deleteProduct(String id) {
-    _items.removeWhere((element) => element.id == id);
+  Future<void> deleteProduct(String id) async {
+    final url =
+        'https://flutter-update-55935-default-rtdb.firebaseio.com/products/$id.json';
+    final existingProductIndex =
+        _items.indexWhere((element) => element.id == id);
+    Product? existingProduct = _items[existingProductIndex];
+    _items.removeAt(existingProductIndex);
     notifyListeners();
+
+    final response = await http.delete(Uri.parse(url));
+
+    if (response.statusCode >= 400) {
+      _items.insert(existingProductIndex, existingProduct);
+      notifyListeners();
+      throw HttpException("Could not delete product.");
+    }
+    //print(response.statusCode);
+    existingProduct = null;
   }
 }
