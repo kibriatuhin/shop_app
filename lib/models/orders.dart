@@ -39,13 +39,15 @@ class Orders with ChangeNotifier {
         'https://flutter-update-55935-default-rtdb.firebaseio.com/orders/$userId.json?auth=$authToken';
     final response = await http.get(Uri.parse(url));
     final List<OrderItem> loadedOrder = [];
-    final extractedData = json.decode(response.body) as Map<String, dynamic>;
+    final extractedData = json.decode(response.body) as Map<String,dynamic>;
     if(extractedData == null){
       return;
     }
+
     extractedData.forEach((orderId, orderData) {
       loadedOrder.add(OrderItem(
           id: orderId,
+
           amount: orderData['amount'],
           products: (orderData['products'] as List<dynamic>)
               .map(
